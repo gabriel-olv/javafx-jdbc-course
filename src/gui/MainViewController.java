@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.utils.Alerts;
@@ -35,36 +36,22 @@ public class MainViewController implements Initializable {
 
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		loadView2("/gui/DepartmentList.fxml");
+		loadView("/gui/DepartmentList.fxml", (DepartmentListController controller) -> {
+			controller.setDepartmentService(new DepartmentService());
+			controller.updateTableView();
+		});
 	}
 
 	@FXML
 	public void onMenuItemAboutAction() {
-		loadView("/gui/About.fxml");
+		loadView("/gui/About.fxml", x -> {});
 	}
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 	}
 
-	private synchronized void loadView(String path) {
-		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(path));
-			VBox vBox = fxmlLoader.load();
-			
-			Scene mainScene = Main.getScene();
-			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
-			MenuBar mainMenu = (MenuBar) mainVBox.getChildren().get(0);
-			
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(vBox.getChildren());
-		} catch (IOException e) {
-			Alerts.showAlert("IO Exception", e.getMessage(), AlertType.ERROR);
-		}
-	}
-	
-	private synchronized void loadView2(String path) {
+	private synchronized <T> void loadView(String path, Consumer<T> instance) {
 		try {
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(path));
 			VBox vBox = fxmlLoader.load();
@@ -77,9 +64,8 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(vBox.getChildren());
 			
-			DepartmentListController controller = fxmlLoader.getController();
-			controller.setDepartmentService(new DepartmentService());
-			controller.updateTableView();
+			T controller = fxmlLoader.getController();
+			instance.accept(controller);
 		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", e.getMessage(), AlertType.ERROR);
 		}
