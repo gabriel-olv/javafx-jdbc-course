@@ -1,13 +1,17 @@
 package gui.utils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 public class Utils {
 
@@ -48,6 +52,31 @@ public class Utils {
 				}
 				setText(String.format("%." + decimalPlaces + "f", value));
 			};
+		});
+	}
+	
+	public static void formatDatePicker(DatePicker datePicker, String pattern) {
+		datePicker.setPromptText(pattern); 
+		datePicker.setConverter(new StringConverter<LocalDate>() {
+			private DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
+			
+			@Override
+			public String toString(LocalDate date) {
+				if (date != null) {
+					return df.format(date);
+				} else {
+					return "";
+				}
+			}
+			
+			@Override
+			public LocalDate fromString(String dateOnPattern) {
+				if (dateOnPattern != null && !dateOnPattern.isBlank()) {
+					return LocalDate.parse(pattern, df);
+				} else {
+					return null;
+				}
+			}
 		});
 	}
 }

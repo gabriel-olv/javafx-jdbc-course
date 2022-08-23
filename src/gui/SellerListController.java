@@ -32,6 +32,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener {
@@ -118,11 +119,12 @@ public class SellerListController implements Initializable, DataChangeListener {
 			Pane pane = fxmlLoader.load();
 			pane.setPrefSize(300, 300);
 
-//			SellerFormController controller = fxmlLoader.getController();
-//			controller.setSeller(obj);
-//			controller.updateFormData();
-//			controller.setSellerService(new SellerService());
-//			controller.subscribeDataChangeListener(this);
+			SellerFormController controller = fxmlLoader.getController();
+			controller.setSeller(obj);
+			controller.updateFormData();
+			controller.setSellerService(new SellerService());
+			controller.setDepartmentService(new DepartmentService());
+			controller.subscribeDataChangeListener(this);
 
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Enter Seller data");

@@ -37,9 +37,6 @@ public class DepartmentFormController implements Initializable {
 	private TextField textFieldName;
 	
 	@FXML
-	private Label labelErrorId;
-
-	@FXML
 	private Label labelErrorName;
 
 	@FXML
@@ -59,6 +56,12 @@ public class DepartmentFormController implements Initializable {
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
 	}
+	
+	@FXML
+	public void onBtCancelAction(ActionEvent ae) {
+		Stage currentStage = Utils.currentStage(ae);
+		currentStage.close();
+	}
 
 	@FXML
 	public void onBtSaveAction(ActionEvent ae) {
@@ -74,7 +77,7 @@ public class DepartmentFormController implements Initializable {
 			notifyDataChangeListeners();
 			Utils.currentStage(ae).close();
 		} catch (DbException e) {
-			Alerts.showAlert("Error savign object", e.getMessage(), AlertType.ERROR);
+			Alerts.showAlert("Error savings object", e.getMessage(), AlertType.ERROR);
 		} catch (ValidationException e) {
 			setErrorMessage(e.getErrors());
 		}
@@ -106,12 +109,6 @@ public class DepartmentFormController implements Initializable {
 			throw ex;
 		}
 		return new Department(id, name);
-	}
-
-	@FXML
-	public void onBtCancelAction(ActionEvent ae) {
-		Stage currentStage = Utils.currentStage(ae);
-		currentStage.close();
 	}
 
 	@Override

@@ -28,10 +28,6 @@
             <Label text="Name" GridPane.rowIndex="1" />
             <TextField fx:id="textFieldId" editable="false" prefHeight="25.0" prefWidth="98.0" GridPane.columnIndex="1" />
             <TextField fx:id="textFieldName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label fx:id="labelErrorId" textFill="RED" GridPane.columnIndex="2">
-               <GridPane.margin>
-                  <Insets left="10.0" />
-               </GridPane.margin></Label>
             <Label fx:id="labelErrorName" textFill="RED" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" />
