@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.exceptions.DbException;
 import gui.listeners.DataChangeListener;
@@ -15,7 +17,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import model.dao.exceptions.ValidationException;
 import model.entities.Department;
 import model.services.DepartmentService;
 
@@ -30,13 +34,18 @@ public class DepartmentFormController implements Initializable {
 
 	@FXML
 	private TextField textFieldName;
+	
+	@FXML
+	private Label labelErrorId;
+
+	@FXML
+	private Label labelErrorName;
 
 	@FXML
 	private Button btSave;
 
 	@FXML
 	private Button btCancel;
-
 
 	public void setDepartment(Department obj) {
 		this.obj = obj;
@@ -45,28 +54,37 @@ public class DepartmentFormController implements Initializable {
 	public void setDepartmentService(DepartmentService departmentService) {
 		this.departmentService = departmentService;
 	}
-	
+
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
 	}
-	
+
 	@FXML
 	public void onBtSaveAction(ActionEvent ae) {
-		obj = getFormData();
 		if (departmentService == null) {
 			throw new IllegalStateException("Service was null");
 		}
 		if (obj == null) {
-			Alerts.showAlert("Empty data", "Can't save empty department", AlertType.INFORMATION);
-		} else {
-			try {
-				departmentService.SaveOrUpdate(obj);
-				Alerts.showAlert("Success", "Department saved successfully", AlertType.INFORMATION);
-				notifyDataChangeListeners();
-				Utils.currentStage(ae).close();
-			} catch (DbException e) {
-				Alerts.showAlert("Error savign object", e.getMessage(), AlertType.ERROR);
-			}
+			throw new IllegalStateException("Entity was null");
+		}
+		try {
+			obj = getFormData();
+			departmentService.SaveOrUpdate(obj);
+			Alerts.showAlert("Success", "Department saved successfully", AlertType.INFORMATION);
+			notifyDataChangeListeners();
+			Utils.currentStage(ae).close();
+		} catch (DbException e) {
+			Alerts.showAlert("Error savign object", e.getMessage(), AlertType.ERROR);
+		} catch (ValidationException e) {
+			setErrorMessage(e.getErrors());
+		}
+	}
+	
+	private void setErrorMessage(Map<String, String> errors) {
+		Set<String> fields = errors.keySet();
+		
+		if (fields.contains("name")) {
+			labelErrorName.setText(errors.get("name"));
 		}
 	}
 
@@ -79,8 +97,13 @@ public class DepartmentFormController implements Initializable {
 	private Department getFormData() {
 		Integer id = Utils.tryParseToInt(textFieldId.getText());
 		String name = textFieldName.getText();
-		if (id == null && name == null) {
-			return null;
+
+		ValidationException ex = new ValidationException("Error validation");
+		if (name == null || name.isBlank()) {
+			ex.addError("name", "Field can't be empty");
+		}
+		if (ex.getErrors().size() > 0) {
+			throw ex;
 		}
 		return new Department(id, name);
 	}
