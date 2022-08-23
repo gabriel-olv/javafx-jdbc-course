@@ -3,17 +3,24 @@ package gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import db.exceptions.DbException;
+import gui.utils.Alerts;
 import gui.utils.Constraints;
+import gui.utils.Utils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.services.DepartmentService;
 
 public class DepartmentFormController implements Initializable {
 
 	private Department obj;
-	
+	private DepartmentService departmentService;
+
 	@FXML
 	private TextField textFieldId;
 
@@ -27,14 +34,41 @@ public class DepartmentFormController implements Initializable {
 	private Button btCancel;
 
 	@FXML
-	public void onBtSaveAction() {
-		System.out.println("onBtSaveAction");
+	public void onBtSaveAction(ActionEvent ae) {
+		obj = getFormData();
+		if (departmentService == null) {
+			throw new IllegalStateException("Service was null");
+		}
+		if (obj == null) {
+			Alerts.showAlert("Empty data", "Can't save empty department", AlertType.INFORMATION);
+		} else {
+			try {
+				departmentService.SaveOrUpdate(obj);
+				Alerts.showAlert("Success", "Department saved successfully", AlertType.INFORMATION);
+				Utils.currentStage(ae).close();
+			} catch (DbException e) {
+				Alerts.showAlert("Error savign object", e.getMessage(), AlertType.ERROR);
+			}
+		}
+	}
+
+	private Department getFormData() {
+		Integer id = Utils.tryParseToInt(textFieldId.getText());
+		String name = textFieldName.getText();
+		if (id == null && name == null) {
+			return null;
+		}
+		return new Department(id, name);
 	}
 
 	public void setDepartment(Department obj) {
 		this.obj = obj;
 	}
-	
+
+	public void setDepartmentService(DepartmentService departmentService) {
+		this.departmentService = departmentService;
+	}
+
 	@FXML
 	public void onBtCancelAction() {
 		System.out.println("onBtCancelAction");
@@ -44,12 +78,12 @@ public class DepartmentFormController implements Initializable {
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
 	}
-	
+
 	private void initializeNodes() {
 		Constraints.setTextFieldInteger(textFieldId);
 		Constraints.setTextFieldMaxLength(textFieldName, 30);
 	}
-	
+
 	public void updateFormData() {
 		if (obj == null) {
 			throw new IllegalStateException("Entity was null");
