@@ -19,6 +19,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import model.dao.exceptions.ValidationException;
 import model.entities.Department;
 import model.services.DepartmentService;
@@ -70,7 +71,6 @@ public class DepartmentFormController implements Initializable {
 		try {
 			obj = getFormData();
 			departmentService.SaveOrUpdate(obj);
-			Alerts.showAlert("Success", "Department saved successfully", AlertType.INFORMATION);
 			notifyDataChangeListeners();
 			Utils.currentStage(ae).close();
 		} catch (DbException e) {
@@ -109,8 +109,9 @@ public class DepartmentFormController implements Initializable {
 	}
 
 	@FXML
-	public void onBtCancelAction() {
-		System.out.println("onBtCancelAction");
+	public void onBtCancelAction(ActionEvent ae) {
+		Stage currentStage = Utils.currentStage(ae);
+		currentStage.close();
 	}
 
 	@Override
