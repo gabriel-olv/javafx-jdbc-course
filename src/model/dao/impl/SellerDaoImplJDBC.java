@@ -172,7 +172,8 @@ public class SellerDaoImplJDBC implements SellerDao {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			st = conn.prepareStatement("SELECT * FROM seller;");
+			st = conn.prepareStatement("SELECT seller.*, department.Name DepartmentName "
+					+ "FROM seller INNER JOIN department WHERE seller.DepartmentId = department.Id");
 			rs = st.executeQuery();
 			List<Seller> list = new ArrayList<>();
 			Map<Integer, Department> map = new HashMap<>();
