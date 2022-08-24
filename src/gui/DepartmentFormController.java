@@ -35,7 +35,7 @@ public class DepartmentFormController implements Initializable {
 
 	@FXML
 	private TextField textFieldName;
-	
+
 	@FXML
 	private Label labelErrorName;
 
@@ -56,7 +56,7 @@ public class DepartmentFormController implements Initializable {
 	public void subscribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListeners.add(listener);
 	}
-	
+
 	@FXML
 	public void onBtCancelAction(ActionEvent ae) {
 		Stage currentStage = Utils.currentStage(ae);
@@ -82,13 +82,10 @@ public class DepartmentFormController implements Initializable {
 			setErrorMessage(e.getErrors());
 		}
 	}
-	
+
 	private void setErrorMessage(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-		
-		if (fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
+		labelErrorName.setText(fields.contains("name") ? errors.get("name") : "");
 	}
 
 	private void notifyDataChangeListeners() {

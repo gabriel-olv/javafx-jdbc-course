@@ -3,6 +3,8 @@ package gui;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +42,7 @@ public class SellerFormController implements Initializable {
 	private Seller obj;
 	private SellerService sellerService;
 	private DepartmentService departmentService;
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 
 	@FXML
 	private TextField textFieldId;
@@ -89,7 +92,7 @@ public class SellerFormController implements Initializable {
 	}
 
 	@FXML
-	public void onBtSaveAction() {
+	public void onBtSaveAction(ActionEvent ae) {
 		if (departmentService == null || sellerService == null) {
 			throw new IllegalStateException("Service was null");
 		}
@@ -99,6 +102,8 @@ public class SellerFormController implements Initializable {
 		try {
 			obj = getFormData();
 			sellerService.SaveOrUpdate(obj);
+			notifyDataChangeListener();
+			Utils.currentStage(ae).close();
 		} catch (DbException e) {
 			Alerts.showAlert("Error savign object", e.getMessage(), AlertType.ERROR);
 		} catch (ValidationException e) {
@@ -108,34 +113,39 @@ public class SellerFormController implements Initializable {
 
 	private void setErrorMessage(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-		if (fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
-		if (fields.contains("email")) {
-			labelErrorEmail.setText(errors.get("email"));
-		}
-		if (fields.contains("birthDate")) {
-			labelErrorBirthDate.setText(errors.get("birthDate"));
-		}
-		if (fields.contains("baseSalary")) {
-			labelErrorBaseSalary.setText(errors.get("baseSalary"));
-		}
+		labelErrorName.setText(fields.contains("name") ? errors.get("name") : "");
+		labelErrorEmail.setText(fields.contains("email") ? errors.get("email") : "");
+		labelErrorBirthDate.setText(fields.contains("birthDate") ? errors.get("birthDate") : "");
+		labelErrorBaseSalary.setText(fields.contains("baseSalary") ? errors.get("baseSalary") : "");
 	}
 
 	private Seller getFormData() {
 		Integer id = Utils.tryParseToInt(textFieldId.getText());
 		String name = textFieldName.getText();
+		String email = textFieldEmail.getText();
+		Date birthDate = Utils.tryParseToDate(datePickerBirthDate.getEditor().getText(), datePickerBirthDate.getPromptText());
+		Double baseSalary = Utils.tryParseToDouble(textFieldBaseSalary.getText());
+		Department department = comboBoxDepartments.getValue();
 
 		ValidationException ex = new ValidationException("Error validation");
 		String msg = "Field can't be empty";
 		if (name == null || name.isBlank()) {
 			ex.addError("name", msg);
 		}
+		if (email == null || email.isBlank()) {
+			ex.addError("email", msg);
+		}
+		if (birthDate == null) {
+			ex.addError("birthDate", msg);
+		}
+		if (baseSalary == null) {
+			ex.addError("baseSalary", msg);
+		}
 		if (ex.getErrors().size() > 0) {
 			throw ex;
 		}
 
-		return new Seller(id, name, null, null, null, null);
+		return new Seller(id, name, email, birthDate, baseSalary, department);
 	}
 
 	@FXML
@@ -159,7 +169,13 @@ public class SellerFormController implements Initializable {
 	}
 
 	public void subscribeDataChangeListener(DataChangeListener listener) {
-		listener.onDataChange();
+		dataChangeListeners.add(listener);
+	}
+	
+	private void notifyDataChangeListener() {
+		for (DataChangeListener listener : dataChangeListeners) {
+			listener.onDataChange();
+		}
 	}
 
 	public void updateFormData() {

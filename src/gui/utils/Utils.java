@@ -1,5 +1,6 @@
 package gui.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,9 +28,27 @@ public class Utils {
 		}
 	}
 
+	public static Double tryParseToDouble(String str) {
+		try {
+			return Double.parseDouble(str);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	public static Date tryParseToDate(String strDate, String pattern) {
+		SimpleDateFormat df = new SimpleDateFormat(pattern);
+		try {
+			return df.parse(strDate);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
 	public static <T> void formatTableColumnDate(TableColumn<T, Date> tableColumn, String pattern) {
 		tableColumn.setCellFactory(cell -> new TableCell<T, Date>() {
 			private final SimpleDateFormat df = new SimpleDateFormat(pattern);
+
 			@Override
 			protected void updateItem(Date item, boolean empty) {
 				super.updateItem(item, empty);
@@ -54,12 +73,12 @@ public class Utils {
 			};
 		});
 	}
-	
+
 	public static void formatDatePicker(DatePicker datePicker, String pattern) {
-		datePicker.setPromptText(pattern); 
+		datePicker.setPromptText(pattern);
 		datePicker.setConverter(new StringConverter<LocalDate>() {
 			private DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
-			
+
 			@Override
 			public String toString(LocalDate date) {
 				if (date != null) {
@@ -68,7 +87,7 @@ public class Utils {
 					return "";
 				}
 			}
-			
+
 			@Override
 			public LocalDate fromString(String dateOnPattern) {
 				if (dateOnPattern != null && !dateOnPattern.isBlank()) {
