@@ -108,9 +108,9 @@ public class SellerListController implements Initializable, DataChangeListener {
 		}
 		List<Seller> list = sellerService.findAll();
 		obsList = FXCollections.observableArrayList(list);
-		tableViewSeller.setItems(obsList);
 		initEditButtons();
 		initRemoveButtons();
+		tableViewSeller.setItems(obsList);
 	}
 
 	private void createDialogForm(Seller obj, String path, Stage parentStage) {
@@ -121,10 +121,10 @@ public class SellerListController implements Initializable, DataChangeListener {
 
 			SellerFormController controller = fxmlLoader.getController();
 			controller.setSeller(obj);
-			controller.updateFormData();
-			controller.setSellerService(new SellerService());
-			controller.setDepartmentService(new DepartmentService());
+			controller.setServices(new SellerService(), new DepartmentService());
+			controller.loadAssociatedObjects();
 			controller.subscribeDataChangeListener(this);
+			controller.updateFormData();
 
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Enter Seller data");

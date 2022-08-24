@@ -72,7 +72,7 @@ public class Utils {
 			@Override
 			public LocalDate fromString(String dateOnPattern) {
 				if (dateOnPattern != null && !dateOnPattern.isBlank()) {
-					return LocalDate.parse(pattern, df);
+					return datePicker.getValue();
 				} else {
 					return null;
 				}
